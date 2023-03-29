@@ -1,0 +1,2 @@
+print("Money zone")
+
