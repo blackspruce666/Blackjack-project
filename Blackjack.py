@@ -8,22 +8,27 @@ print("Blackjack payout is 3:2")
 
 def make_deck():
     suits = ["of hearts", "of diamonds", "of spades", "of clubs"]
-    deck = []
+    deck = [["A", "of hearts", 11],
+            [2,"of hearts", 2],
+            [8, "of hearts", 8],
+            [3,"of hearts", 3],
+            ["A", "of hearts", 11],
+            [8,"of hearts", 8]]
     i = 1
 
-    for suit in suits:
-        while (i < 14):
-            if i == 1:
-                deck.append(["A", suit, 11])
-            elif i == 11:
-                deck.append(["J", suit, 10])
-            elif i == 12:
-                deck.append(["Q", suit, 10])
-            elif i == 13:
-                deck.append(["K", suit, 10])
-            else:
-                deck.append([i, suit, i])
-            i += 1
+    # for suit in suits:
+    #     while (i < 14):
+    #         if i == 1:
+    #             deck.append(["A", suit, 11])
+    #         elif i == 11:
+    #             deck.append(["J", suit, 10])
+    #         elif i == 12:
+    #             deck.append(["Q", suit, 10])
+    #         elif i == 13:
+    #             deck.append(["K", suit, 10])
+    #         else:
+    #             deck.append([i, suit, i])
+    #         i += 1
     return deck
 
 
@@ -43,10 +48,16 @@ def score_hand(hand):
     for card in hand:
         score.append(card[2])
 
-    while sum(score) > 21 and a in list:
+    print (score)
+    while sum(score) > 21 and a in score:
+        print("ACE TOO BIG")
         for i in score:
-            if i == 11:
-                i = 1
+            if i == 11 and (sum(score) > 21):
+                score.remove(i)
+                score.append(1)
+                if sum(score) > 22:
+                    break
+    print(score)
     return sum(score)
 
 
@@ -91,12 +102,12 @@ def main():
     while True:
         #make and shuffle deck
         deck1 = make_deck()
-        shuffle(deck1)
+        #shuffle(deck1)
 
         #initialize hands as empty lists
         hand = []
         dealer_hand = []
-        
+
 
         #deal cards to player and dealer
         hand.append(draw_card(deck1))
