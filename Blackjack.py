@@ -87,40 +87,61 @@ def hit_or_stand(hand, deck):
 
 
 def main():
-    #make and shuffle deck
-    deck1 = make_deck()
-    shuffle(deck1)
+    while True:
+        #make and shuffle deck
+        deck1 = make_deck()
+        shuffle(deck1)
 
-    #initialize hands as empty lists
-    hand = []
-    dealer_hand = []
+        #initialize hands as empty lists
+        hand = []
+        dealer_hand = []
 
-    #deal cards to player and dealer
-    hand.append(draw_card(deck1))
-    dealer_hand.append(draw_card(deck1))
-    hand.append(draw_card(deck1))
-    dealer_hand.append(draw_card(deck1))
+        #deal cards to player and dealer
+        hand.append(draw_card(deck1))
+        dealer_hand.append(draw_card(deck1))
+        hand.append(draw_card(deck1))
+        dealer_hand.append(draw_card(deck1))
 
-    display_1_dealer(dealer_hand)
+        display_1_dealer(dealer_hand)
 
-    display_cards_player(hand)
+        display_cards_player(hand)
 
-    hand = hit_or_stand(hand, deck1)
+        hand = hit_or_stand(hand, deck1)
 
-    player_score = score_hand(hand)
+        player_score = score_hand(hand)
 
-    if player_score == 21:
-        print("WINNER WINNER CHICKEN DINNER")
-        #give money
+        if player_score == 21:
+            print("WINNER WINNER CHICKEN DINNER")
+            #give money
 
-    elif player_score > 21:
-        print("BUST!")
-        #lose money
+        elif player_score > 21:
+            print(f"YOUR POINTS:    {player_score}")
+            print("BUST!")
+            #lose money
 
-    # elif player_score < 21:
-    #     display_hand_dealer(dealer_hand)
-    #     dealer_score = score_hand(dealer_hand)
-    #
+        elif player_score < 21:
+            display_hand_dealer(dealer_hand)
+            dealer_score = score_hand(dealer_hand)
+            print(f"YOUR POINTS:    {player_score}")
+            print(f"DEALER'S POINTS:    {dealer_score}")
+
+            if dealer_score > player_score:
+                print("Dealer wins")
+                print()
+
+            elif dealer_score < player_score:
+                print("You win!!!")
+                print()
+
+        y = input("Play again? (y/n)")
+        if y.lower() == "n":
+            print("Come back soon!")
+            print("Bye!")
+            break
+        elif y.lower() == "y":
+            continue
+        else:
+            print("Please enter y or n")
 
 
 
