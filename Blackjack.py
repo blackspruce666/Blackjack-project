@@ -1,5 +1,5 @@
 import random
-import Money
+import money
 
 
 print("BLACKJACK!")
@@ -8,27 +8,23 @@ print("Blackjack payout is 3:2")
 
 def make_deck():
     suits = ["of hearts", "of diamonds", "of spades", "of clubs"]
-    deck = [["A", "of hearts", 11],
-            [2,"of hearts", 2],
-            [8, "of hearts", 8],
-            [3,"of hearts", 3],
-            ["A", "of hearts", 11],
-            [8,"of hearts", 8]]
-    i = 1
+    deck = []
 
-    # for suit in suits:
-    #     while (i < 14):
-    #         if i == 1:
-    #             deck.append(["A", suit, 11])
-    #         elif i == 11:
-    #             deck.append(["J", suit, 10])
-    #         elif i == 12:
-    #             deck.append(["Q", suit, 10])
-    #         elif i == 13:
-    #             deck.append(["K", suit, 10])
-    #         else:
-    #             deck.append([i, suit, i])
-    #         i += 1
+    for suit in suits:
+        i = 1
+        while (i < 14):
+            if i == 1:
+                deck.append(["A", suit, 11])
+            elif i == 11:
+                deck.append(["J", suit, 10])
+            elif i == 12:
+                deck.append(["Q", suit, 10])
+            elif i == 13:
+                deck.append(["K", suit, 10])
+            else:
+                deck.append([i, suit, i])
+            i += 1
+
     return deck
 
 
@@ -48,16 +44,12 @@ def score_hand(hand):
     for card in hand:
         score.append(card[2])
 
-    print (score)
     while sum(score) > 21 and a in score:
-        print("ACE TOO BIG")
         for i in score:
             if i == 11 and (sum(score) > 21):
                 score.remove(i)
                 score.append(1)
-                if sum(score) > 22:
-                    break
-    print(score)
+
     return sum(score)
 
 
@@ -102,7 +94,7 @@ def main():
     while True:
         #make and shuffle deck
         deck1 = make_deck()
-        #shuffle(deck1)
+        shuffle(deck1)
 
         #initialize hands as empty lists
         hand = []
@@ -115,23 +107,33 @@ def main():
         hand.append(draw_card(deck1))
         dealer_hand.append(draw_card(deck1))
 
+        #show dealer's first card
         display_1_dealer(dealer_hand)
 
+        #show player's cards
         display_cards_player(hand)
 
+        #give the player the option to hit (starts a loop) or stand
         hand = hit_or_stand(hand, deck1)
 
+        #dealer hits if dealer score is below 16
         player_score = score_hand(hand)
+        dealer_score = score_hand(dealer_hand)
+        while dealer_score < 17:
+            dealer_hand.append(draw_card(deck1))
+            dealer_score = score_hand(dealer_hand)
 
         if player_score == 21:
+            print()
+            print(f"YOUR POINTS:    {player_score}")
             print("WINNER WINNER CHICKEN DINNER!!!")
             print()
             #give money
 
         elif player_score > 21:
-            print(f"YOUR POINTS:    {player_score}")
-            print("BUST!")
             print()
+            print(f"YOUR POINTS:    {player_score}")
+            print("BUST! You lose.")
             #lose money
 
         elif player_score < 21:
@@ -141,13 +143,13 @@ def main():
             print(f"DEALER'S POINTS:    {dealer_score}")
 
             if dealer_score > player_score:
-                print("Dealer wins")
-                print()
+                print("Sorry, you lose.")
+
 
             elif dealer_score < player_score:
                 print("You win!!!")
-                print()
 
+        print()
         y = input("Play again? (y/n)")
         if y.lower() == "n":
             print("Come back soon!")
