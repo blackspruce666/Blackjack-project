@@ -6,66 +6,23 @@ print("Blackjack payout is 3:2")
 
 
 def make_deck():
-    i = 1
-    j = 1
-    k = 1
-    l = 1
+    suits = ["of hearts", "of diamonds", "of spades", "of clubs"]
     deck = []
+    i = 1
 
-
-    while (i < 14):
-        if i == 1:
-            deck.append(["A", "of hearts", 11])
-        elif i == 11:
-            deck.append(["J", "of hearts", 10])
-        elif i == 12:
-            deck.append(["Q", "of hearts", 10])
-        elif i == 13:
-            deck.append(["K", "of hearts", 10])
-        else:
-            deck.append([i, "of hearts", i])
-        i += 1
-
-
-    while (j < 14):
-        if j == 1:
-            deck.append(["A", "of diamonds", 11])
-        elif j == 11:
-            deck.append(["J", "of diamonds", 10])
-        elif j == 12:
-            deck.append(["Q", "of diamonds", 10])
-        elif j == 13:
-            deck.append(["K", "of diamonds", 10])
-        else:
-            deck.append([j, "of diamonds", j])
-        j += 1
-
-    while (k < 14):
-        if k == 1:
-            deck.append(["A", "of clubs", 11])
-        elif k == 11:
-            deck.append(["J", "of clubs", 10])
-        elif k == 12:
-            deck.append(["Q", "of clubs", 10])
-        elif k == 13:
-            deck.append(["K", "of clubs", 10])
-        else:
-            deck.append([k, "of clubs", k])
-        k += 1
-
-    while (l < 14):
-        if l == 1:
-            deck.append(["A", "of spades", 11])
-        elif l == 11:
-            deck.append(["J", "of spades", 10])
-        elif l == 12:
-            deck.append(["Q", "of spades", 10])
-        elif l == 13:
-            deck.append(["K", "of spades", 10])
-        else:
-            deck.append([l, "of spades", l])
-        l += 1
-
+    for suit in suits:
+        while (i < 14):
+            if i == 1:
+                deck.append(["A", suit, 11])
+            elif i == 11:
+                deck.append(["J", suit, 10])
+            elif i == 12:
+                deck.append(["Q", suit, 10])
+            elif i == 13:
+                deck.append(["K", suit, 10])
+            else:
+                deck.append([i, suit, i])
+            i += 1
     return deck
 
 
@@ -99,6 +56,14 @@ def display_1_dealer(hand):
     return hand
 
 
+def display_hand_dealer(hand):
+    print()
+    print("DEALER'S CARDS:")
+    for x in hand:
+        print(f"{x[0]} {x[1]}")
+    return hand
+
+
 def display_cards_player(hand):
     print()
     print(f'YOUR CARDS:')
@@ -117,6 +82,8 @@ def hit_or_stand(hand, deck):
 
         elif hos.lower() == "stand":
             return hand
+        else:
+            print("Error. Please enter hit or stand.")
 
 
 def main():
@@ -144,6 +111,16 @@ def main():
 
     if player_score == 21:
         print("WINNER WINNER CHICKEN DINNER")
+        #give money
+
+    elif player_score > 21:
+        print("BUST!")
+        #lose money
+
+    # elif player_score < 21:
+    #     display_hand_dealer(dealer_hand)
+    #     dealer_score = score_hand(dealer_hand)
+    #
 
 
 
