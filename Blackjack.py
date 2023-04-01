@@ -1,6 +1,7 @@
 import random
 import Money
 
+
 print("BLACKJACK!")
 print("Blackjack payout is 3:2")
 
@@ -95,6 +96,7 @@ def main():
         #initialize hands as empty lists
         hand = []
         dealer_hand = []
+        
 
         #deal cards to player and dealer
         hand.append(draw_card(deck1))
@@ -111,12 +113,14 @@ def main():
         player_score = score_hand(hand)
 
         if player_score == 21:
-            print("WINNER WINNER CHICKEN DINNER")
+            print("WINNER WINNER CHICKEN DINNER!!!")
+            print()
             #give money
 
         elif player_score > 21:
             print(f"YOUR POINTS:    {player_score}")
             print("BUST!")
+            print()
             #lose money
 
         elif player_score < 21:
