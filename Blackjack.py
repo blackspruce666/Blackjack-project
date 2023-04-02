@@ -1,5 +1,9 @@
 import random
-import money
+import db
+
+class BrokeAssException(Exception):
+    "Raised when u broke ass"
+    pass
 
 
 print("BLACKJACK!")
@@ -12,7 +16,7 @@ def make_deck():
 
     for suit in suits:
         i = 1
-        while (i < 14):
+        while i < 14:
             if i == 1:
                 deck.append(["A", suit, 11])
             elif i == 11:
@@ -25,11 +29,6 @@ def make_deck():
                 deck.append([i, suit, i])
             i += 1
 
-    return deck
-
-
-def shuffle(deck):
-    random.shuffle(deck)
     return deck
 
 
@@ -76,30 +75,73 @@ def display_cards_player(hand):
     return hand
 
 
-def hit_or_stand(hand, deck):
+def set_bet(money):
     while True:
-        print()
-        hos = input("Hit or stand? (hit/stand):    ")
-        if hos.lower() == "hit":
-            hand.append(draw_card(deck))
-            display_cards_player(hand)
+        try:
+            bet = float(input("Bet: "))
+            if bet > money:
+                raise BrokeAssException
+            if bet < 5 or bet > 1000:
+                raise ValueError("Bet must be between 5 and 1000")
+            return bet
+        except ValueError:
+            print("Please enter a number of chips between 5 and 1000")
+        except BrokeAssException:
+            print("You can't bet more money than you have...broke ass")
 
-        elif hos.lower() == "stand":
-            return hand
-        else:
-            print("Error. Please enter hit or stand.")
+
+def initialize_money():
+    while True:
+        try:
+            money = float(db.read_file())
+            return money
+        except (TypeError, UnboundLocalError, FileNotFoundError):
+            print("money.csv not found. Creating new file.")
+            print()
+            db.write_file([100])
+        except IndexError:
+            print("money.csv empty. Adding 100 to account")
+            print()
+            db.write_file([100])
+        except ValueError:
+            print("Unexpected entry in money.csv. Setting account to 100")
+            print()
+            db.write_file([100])
 
 
 def main():
     while True:
+        print()
+        #get money from the file
+        money = initialize_money()
+        print(f"Money: {money}")
+
+        while money < 5:
+            print()
+            reset = input("Would you like some more chips? (y/n)")
+            if reset.lower() == "y":
+                db.reset_account()
+                money = initialize_money()
+                print("Your account has been topped up to 100. Enjoy.")
+                print()
+            elif reset.lower() == "n":
+                print("Come back soon!")
+                print("Bye!")
+                quit()
+            else:
+                print("Please choose y or n")
+                print()
+
+        #set bet
+        bet = set_bet(money)
+
         #make and shuffle deck
         deck1 = make_deck()
-        shuffle(deck1)
+        random.shuffle(deck1)
 
         #initialize hands as empty lists
         hand = []
         dealer_hand = []
-
 
         #deal cards to player and dealer
         hand.append(draw_card(deck1))
@@ -113,41 +155,71 @@ def main():
         #show player's cards
         display_cards_player(hand)
 
-        #give the player the option to hit (starts a loop) or stand
-        hand = hit_or_stand(hand, deck1)
+        #get player score. Checking here prevents the player hitting when they already have 21.
+        player_score = score_hand(hand)
+
+        #give the player the option to hit (starts a loop) or stand. Breaks automatically on 21 or higher.
+        while player_score < 21:
+            print()
+            hos = input("Hit or stand? (hit/stand): ")
+            if hos.lower() == "hit":
+                hand.append(draw_card(deck1)) #add card
+                display_cards_player(hand)  #show card
+                player_score = score_hand(hand) #score hand to check for 21 or bust
+            elif hos.lower() == "stand":
+                break
+            else:
+                print("Error. Please enter hit or stand.")
+
 
         #dealer hits if dealer score is below 16
         player_score = score_hand(hand)
         dealer_score = score_hand(dealer_hand)
-        while dealer_score < 17:
+        while dealer_score < 17 and dealer_score <21:
             dealer_hand.append(draw_card(deck1))
             dealer_score = score_hand(dealer_hand)
 
         if player_score == 21:
             print()
+            db.add_money(money, bet)
             print(f"YOUR POINTS:    {player_score}")
             print("WINNER WINNER CHICKEN DINNER!!!")
-            print()
-            #give money
+            print(f"Money:  {float(db.read_file())}")
 
         elif player_score > 21:
             print()
+            db.lose_money(money, bet)
             print(f"YOUR POINTS:    {player_score}")
             print("BUST! You lose.")
-            #lose money
+            print(f"Money:  {float(db.read_file())}")
+
 
         elif player_score < 21:
             display_hand_dealer(dealer_hand)
             dealer_score = score_hand(dealer_hand)
+            print()
             print(f"YOUR POINTS:    {player_score}")
             print(f"DEALER'S POINTS:    {dealer_score}")
 
-            if dealer_score > player_score:
+            if dealer_score < 22 and dealer_score > player_score:
+                print()
+                db.lose_money(money, bet)
                 print("Sorry, you lose.")
+                print(f"Money:  {float(db.read_file())}")
 
 
             elif dealer_score < player_score:
+                print()
+                db.add_money(money, bet)
                 print("You win!!!")
+                print(f"Money:  {float(db.read_file())}")
+
+            elif dealer_score > 21 or dealer_score == player_score:
+                print()
+                db.add_money(money, 0)
+                print("Push. It's a tie. :/")
+                print(f"Money:  {float(db.read_file())}")
+
 
         print()
         y = input("Play again? (y/n)")
