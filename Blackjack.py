@@ -1,8 +1,9 @@
 import random
 import db
 
-class BrokeAssException(Exception):
-    "Raised when u broke ass"
+
+class not_enough_chips_exception(Exception):
+    "Raised when you do not have enough chips to play" 
     pass
 
 
@@ -11,7 +12,9 @@ print("Blackjack payout is 3:2")
 
 
 def make_deck():
-    suits = ["of hearts", "of diamonds", "of spades", "of clubs"]
+    #use this line if the unicode characters don't work nicely on your system.
+    #suits = ["of hearts", "of diamonds", "of spades", "of clubs"]
+    suits = ["\u2665", "\u2666", "\u2660", "\u2663"]
     deck = []
 
     for suit in suits:
@@ -80,14 +83,14 @@ def set_bet(money):
         try:
             bet = float(input("Bet: "))
             if bet > money:
-                raise BrokeAssException
+                raise not_enough_chips_exception
             if bet < 5 or bet > 1000:
                 raise ValueError("Bet must be between 5 and 1000")
             return bet
         except ValueError:
             print("Please enter a number of chips between 5 and 1000")
-        except BrokeAssException:
-            print("You can't bet more money than you have...broke ass")
+        except not_enough_chips_exception:
+            print("You can't bet more money than you have.")
 
 
 def initialize_money():
@@ -95,18 +98,8 @@ def initialize_money():
         try:
             money = float(db.read_file())
             return money
-        except (TypeError, UnboundLocalError, FileNotFoundError):
-            print("money.csv not found. Creating new file.")
-            print()
-            db.write_file([100])
-        except IndexError:
-            print("money.csv empty. Adding 100 to account")
-            print()
-            db.write_file([100])
-        except ValueError:
-            print("Unexpected entry in money.csv. Setting account to 100")
-            print()
-            db.write_file([100])
+        except (TypeError, UnboundLocalError, FileNotFoundError, IndexError, ValueError):
+            db.write_file([100.00])
 
 
 def main():
@@ -114,6 +107,8 @@ def main():
         print()
         #get money from the file
         money = initialize_money()
+
+    
         print(f"Money: {money}")
 
         while money < 5:
@@ -122,7 +117,7 @@ def main():
             if reset.lower() == "y":
                 db.reset_account()
                 money = initialize_money()
-                print("Your account has been topped up to 100. Enjoy.")
+                print("Your account has been topped up to 100.")
                 print()
             elif reset.lower() == "n":
                 print("Come back soon!")
@@ -179,6 +174,7 @@ def main():
             dealer_hand.append(draw_card(deck1))
             dealer_score = score_hand(dealer_hand)
 
+        #player wins immediately on 21
         if player_score == 21:
             print()
             db.add_money(money, bet)
@@ -186,6 +182,7 @@ def main():
             print("WINNER WINNER CHICKEN DINNER!!!")
             print(f"Money:  {float(db.read_file())}")
 
+        #player loses immediately if they go over 21/bust
         elif player_score > 21:
             print()
             db.lose_money(money, bet)
@@ -194,6 +191,7 @@ def main():
             print(f"Money:  {float(db.read_file())}")
 
 
+        #If player score is less than 21, program compares player hand to dealer hand
         elif player_score < 21:
             display_hand_dealer(dealer_hand)
             dealer_score = score_hand(dealer_hand)
@@ -201,26 +199,28 @@ def main():
             print(f"YOUR POINTS:    {player_score}")
             print(f"DEALER'S POINTS:    {dealer_score}")
 
+            #Dealer wins
             if dealer_score < 22 and dealer_score > player_score:
                 print()
                 db.lose_money(money, bet)
                 print("Sorry, you lose.")
                 print(f"Money:  {float(db.read_file())}")
 
-
+            #Player wins
             elif dealer_score < player_score:
                 print()
                 db.add_money(money, bet)
                 print("You win!!!")
                 print(f"Money:  {float(db.read_file())}")
 
+            #Tie/push
             elif dealer_score > 21 or dealer_score == player_score:
                 print()
                 db.add_money(money, 0)
                 print("Push. It's a tie. :/")
                 print(f"Money:  {float(db.read_file())}")
 
-
+        #play again/loop
         print()
         y = input("Play again? (y/n)")
         if y.lower() == "n":
@@ -232,13 +232,6 @@ def main():
         else:
             print("Please enter y or n")
 
-
-
-
-
-
-
-
-
+#Dunder
 if __name__ == "__main__":
     main()
